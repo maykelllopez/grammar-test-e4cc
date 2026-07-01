@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>E4CC Grammar Test – Intermediate Level</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:#060d18; color:#f0f0f0; min-height:100vh; }
+
+  .header {
+    background:#1a2f4a; border-bottom:3px solid #E8541A;
+    padding:0 32px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:100; height:56px;
+  }
+  .logo-img { height:34px; object-fit:contain; }
+
+  /* Tabs */
+  .tabs { display:flex; gap:0; }
+  .tab-btn {
+    padding:0 22px; height:56px; background:transparent;
+    border:none; border-bottom:3px solid transparent;
+    color:rgba(255,255,255,.4); font-size:13px; font-weight:600;
+    font-family:'Inter',sans-serif; cursor:pointer; transition:all .2s;
+    letter-spacing:.03em; margin-bottom:-3px;
+  }
+  .tab-btn:hover { color:#fff; }
+  .tab-btn.active { color:#E8541A; border-bottom-color:#E8541A; }
+
+  .progress-bar { height:3px; background:#1a2f4a; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,#E8541A,#ff8c5a); transition:width .3s; box-shadow:0 0 8px rgba(232,84,26,.6); }
+
+  /* Pages */
+  .page { display:none; }
+  .page.active { display:block; }
+
+  /* ── COVER ── */
+  .cover {
+    min-height:calc(100vh - 59px); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; padding:40px 24px;
+    background:radial-gradient(ellipse at 70% 30%,rgba(232,84,26,.08) 0%,transparent 60%),
+               radial-gradient(ellipse at 30% 70%,rgba(30,60,120,.15) 0%,transparent 60%),#060d18;
+  }
+  .cover img { height:56px; margin-bottom:28px; }
+  .cover h1 { font-size:40px; font-weight:800; letter-spacing:-.02em; margin-bottom:8px; }
+  .cover h1 span { background:linear-gradient(90deg,#E8541A,#ff8c5a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .cover p { font-size:15px; color:#7a9bbf; max-width:520px; line-height:1.7; margin-bottom:32px; }
+  .info-row { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin-bottom:36px; }
+  .info-pill { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:8px 18px; font-size:13px; color:#c0d4e8; }
+  .info-pill span { color:#E8541A; font-weight:700; }
+  .name-wrap { margin-bottom:28px; width:100%; max-width:380px; }
+  .name-wrap label { display:block; font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:#7a9bbf; margin-bottom:8px; }
+  .name-wrap input { width:100%; padding:12px 16px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.15); border-radius:10px; color:#fff; font-size:15px; font-family:'Inter',sans-serif; outline:none; transition:border .2s; }
+  .name-wrap input:focus { border-color:#E8541A; }
+  .note-box { background:rgba(232,84,26,.08); border:1px solid rgba(232,84,26,.25); border-radius:10px; padding:12px 18px; font-size:13px; color:#c0d4e8; max-width:500px; line-height:1.6; margin-bottom:28px; }
+  .note-box b { color:#E8541A; }
+  .btn { background:linear-gradient(135deg,#E8541A,#c94515); color:#fff; border:none; padding:14px 36px; border-radius:30px; font-size:15px; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer; transition:all .2s; box-shadow:0 0 20px rgba(232,84,26,.35); }
+  .btn:hover { background:linear-gradient(135deg,#ff6a2e,#E8541A); box-shadow:0 0 28px rgba(232,84,26,.5); }
+
+  /* ── GRAMMAR REFRESH ── */
+  .refresh-area { max-width:800px; margin:0 auto; padding:32px 20px 80px; }
+  .refresh-area h2 { font-size:24px; font-weight:800; color:#fff; margin-bottom:6px; }
+  .refresh-area .refresh-sub { font-size:13px; color:#7a9bbf; margin-bottom:28px; }
+
+  .refresh-grid { display:flex; flex-direction:column; gap:14px; }
+  .refresh-card {
+    background:#1a2f4a; border:1px solid rgba(255,255,255,.07);
+    border-radius:12px; overflow:hidden;
+  }
+  .refresh-card-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px; cursor:pointer; transition:background .15s;
+  }
+  .refresh-card-header:hover { background:rgba(255,255,255,.03); }
+  .refresh-card-title { font-size:15px; font-weight:700; color:#fff; }
+  .refresh-card-tag { font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; padding:3px 10px; border-radius:12px; }
+  .refresh-chevron { color:#7a9bbf; font-size:12px; transition:transform .2s; }
+  .refresh-card.open .refresh-chevron { transform:rotate(180deg); }
+  .refresh-body { display:none; padding:0 18px 18px; border-top:1px solid rgba(255,255,255,.06); }
+  .refresh-card.open .refresh-body { display:block; }
+
+  .refresh-row { margin-top:14px; }
+  .refresh-label { font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#7a9bbf; margin-bottom:5px; }
+  .refresh-value { font-size:14px; color:#c0d4e8; line-height:1.6; }
+  .refresh-example { font-size:14px; color:#fff; font-style:italic; line-height:1.6; }
+  .refresh-example b { font-style:normal; }
+
+  /* ── TEST ── */
+  .test-area { max-width:800px; margin:0 auto; padding:32px 20px 80px; }
+  .section-header { margin:36px 0 20px; padding:16px 22px; background:rgba(232,84,26,.08); border-left:4px solid #E8541A; border-radius:0 10px 10px 0; }
+  .section-header .section-tag { font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#E8541A; margin-bottom:4px; }
+  .section-header h2 { font-size:18px; font-weight:700; color:#fff; }
+  .section-header p { font-size:12px; color:#7a9bbf; margin-top:3px; }
+
+  .reading-passage { background:#1a2f4a; border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:24px 26px; margin-bottom:20px; }
+  .reading-passage h3 { font-size:16px; font-weight:700; color:#E8541A; margin-bottom:4px; }
+  .reading-passage .reading-meta { font-size:11px; color:#7a9bbf; margin-bottom:16px; }
+  .reading-passage p { font-size:14px; color:#c0d4e8; line-height:1.9; margin-bottom:12px; }
+  .reading-passage p:last-child { margin-bottom:0; }
+  .vocab { color:#EF9F27; border-bottom:1px dashed #EF9F27; cursor:help; position:relative; display:inline; }
+  .vocab .tooltip { display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:#0f1c2e; border:1px solid #EF9F27; border-radius:8px; padding:8px 12px; font-size:12px; color:#fff; white-space:normal; z-index:50; min-width:180px; max-width:260px; line-height:1.5; text-align:left; font-style:normal; box-shadow:0 4px 20px rgba(0,0,0,.5); }
+  .vocab:hover .tooltip { display:block; }
+  .vocab-note { font-size:11px; color:#7a9bbf; font-style:italic; margin-bottom:12px; }
+
+  .q-card { background:#1a2f4a; border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:20px 22px; margin-bottom:14px; transition:border .2s; }
+  .q-card.answered { border-color:rgba(232,84,26,.3); }
+  .q-num { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#7a9bbf; margin-bottom:8px; }
+  .q-text { font-size:15px; font-weight:500; color:#fff; line-height:1.55; margin-bottom:14px; }
+  .q-note { font-size:11px; color:#EF9F27; font-style:italic; margin-bottom:10px; }
+  .q-multi-note { font-size:11px; color:#4ecba5; font-style:italic; margin-bottom:10px; }
+
+  .options { display:flex; flex-direction:column; gap:8px; }
+  .opt { display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); cursor:pointer; transition:all .15s; font-size:14px; color:#c0d4e8; }
+  .opt:hover { background:rgba(232,84,26,.1); border-color:rgba(232,84,26,.3); }
+  .opt input[type=radio] { accent-color:#E8541A; width:15px; height:15px; flex-shrink:0; }
+  .opt input[type=checkbox] { accent-color:#4ecba5; width:15px; height:15px; flex-shrink:0; }
+  .opt.selected { background:rgba(232,84,26,.12); border-color:#E8541A; color:#fff; }
+  .opt.selected-multi { background:rgba(78,203,165,.1); border-color:#4ecba5; color:#fff; }
+
+  .tf-options { display:flex; gap:10px; }
+  .tf-btn { flex:1; padding:10px; border-radius:8px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); cursor:pointer; font-size:14px; font-weight:600; color:#c0d4e8; transition:all .15s; font-family:'Inter',sans-serif; }
+  .tf-btn:hover { background:rgba(232,84,26,.1); border-color:rgba(232,84,26,.3); }
+  .tf-btn.selected-true { background:rgba(78,203,165,.15); border-color:#4ecba5; color:#4ecba5; }
+  .tf-btn.selected-false { background:rgba(232,84,26,.15); border-color:#E8541A; color:#E8541A; }
+
+  .fitb-input { width:100%; padding:10px 14px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.15); border-radius:8px; color:#fff; font-size:14px; font-family:'Inter',sans-serif; outline:none; transition:border .2s; }
+  .fitb-input:focus { border-color:#E8541A; }
+
+  .submit-wrap { text-align:center; margin-top:40px; }
+  .submit-wrap p { color:#7a9bbf; font-size:13px; margin-bottom:16px; }
+
+  /* ── RESULTS ── */
+  .results-area { max-width:700px; margin:0 auto; padding:40px 20px 80px; text-align:center; }
+  .results-area img { height:52px; margin-bottom:24px; }
+  .result-name { font-size:14px; color:#7a9bbf; margin-bottom:4px; }
+  .result-score-big { font-size:64px; font-weight:800; color:#E8541A; line-height:1; margin-bottom:4px; }
+  .result-score-label { font-size:14px; color:#7a9bbf; margin-bottom:28px; }
+  .cefr-badge { display:inline-block; padding:14px 40px; border-radius:40px; font-size:28px; font-weight:800; margin-bottom:16px; }
+  .cefr-desc { font-size:15px; color:#c0d4e8; max-width:480px; margin:0 auto 32px; line-height:1.7; }
+  .breakdown { background:#1a2f4a; border-radius:14px; padding:22px 24px; margin:28px 0; text-align:left; }
+  .breakdown h3 { font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#7a9bbf; margin-bottom:16px; }
+  .bd-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .bd-label { font-size:12px; color:#c0d4e8; width:210px; flex-shrink:0; }
+  .bd-bar-wrap { flex:1; background:rgba(255,255,255,.07); border-radius:4px; height:6px; }
+  .bd-bar { height:6px; border-radius:4px; }
+  .bd-score { font-size:12px; color:#7a9bbf; width:40px; text-align:right; }
+  .retry-btn { margin-top:20px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15); color:#fff; padding:12px 28px; border-radius:24px; font-size:14px; font-family:'Inter',sans-serif; cursor:pointer; transition:all .2s; }
+  .retry-btn:hover { background:rgba(255,255,255,.14); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img class="logo-img" src="https://i.imgur.com/9ITpXh0.png" alt="E4CC" onerror="this.style.display='none'"/>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('test-page')">📝 Test</button>
+    <button class="tab-btn" onclick="showTab('refresh-page')">📖 Grammar Refresh</button>
+  </div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+
+<!-- ── TEST PAGE ── -->
+<div class="page active" id="test-page">
+
+  <!-- Cover -->
+  <div class="cover" id="cover">
+    <img src="https://i.imgur.com/9ITpXh0.png" alt="E4CC" onerror="this.style.display='none'"/>
+    <h1>Grammar <span>Test</span></h1>
+    <p>Test your knowledge of English grammar tenses, structures, and reading comprehension. Take your time and read every question carefully!</p>
+    <div class="info-row">
+      <div class="info-pill">⏱ Approx. <span>75–90 min</span></div>
+      <div class="info-pill">📝 <span>120+ questions</span></div>
+      <div class="info-pill">📖 <span>3 Reading passages</span></div>
+      <div class="info-pill">🎯 CEFR Level result</div>
+    </div>
+    <div class="name-wrap">
+      <label>Your Full Name</label>
+      <input type="text" id="student-name" placeholder="Write your name here..."/>
+    </div>
+    <div class="note-box">
+      <b>Important:</b> Do not use contractions in fill in the blank answers.<br>
+      Write the full form only. Example: <b>I am</b> (not I'm) · <b>She does not</b> (not she doesn't)<br><br>
+      💡 In reading sections, <span style="color:#EF9F27;border-bottom:1px dashed #EF9F27;">highlighted words</span> have definitions — hover to see them.<br><br>
+      ✅ Some questions have <b style="color:#4ecba5;">more than one correct answer</b> — select all that apply.
+    </div>
+    <button class="btn" onclick="startTest()">Start Test →</button>
+  </div>
+
+  <!-- Test area -->
+  <div class="test-area" id="test-area" style="display:none;"></div>
+
+  <!-- Results -->
+  <div class="results-area" id="results-area" style="display:none;">
+    <img src="https://i.imgur.com/9ITpXh0.png" alt="E4CC" onerror="this.style.display='none'"/>
+    <div class="result-name" id="res-name"></div>
+    <div class="result-score-big" id="res-score"></div>
+    <div class="result-score-label" id="res-score-label"></div>
+    <div class="cefr-badge" id="cefr-badge"></div>
+    <div class="cefr-desc" id="cefr-desc"></div>
+    <div class="breakdown" id="breakdown"></div>
+    <button class="retry-btn" onclick="location.reload()">↩ Take the test again</button>
+  </div>
+
+</div>
+
+<!-- ── GRAMMAR REFRESH PAGE ── -->
+<div class="page" id="refresh-page">
+  <div class="refresh-area">
+    <h2>Grammar Refresh</h2>
+    <p class="refresh-sub">Review the grammar topics covered in the test. Click on any topic to expand it.</p>
+    <div class="refresh-grid" id="refresh-grid"></div>
+  </div>
+</div>
+
+<script>
+// ── Tab navigation ─────────────────────────────────────────────────────────
+function showTab(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── Grammar Refresh data ───────────────────────────────────────────────────
+const grammarRefresh = [
+  { title:"Simple Present", color:"#5fa8d3",
+    formula:"Subject + base verb (he/she/it + verb<b>s</b>)",
+    usage:"To talk about habits, routines, and general facts",
+    example:"She <b>STUDIES</b> English every morning." },
+  { title:"Present Progressive", color:"#5fa8d3",
+    formula:"Subject + am/is/are + verb<b>+ing</b>",
+    usage:"To talk about actions happening right now or around this time",
+    example:"He <b>IS TALKING</b> to his manager right now." },
+  { title:"Simple Past", color:"#a89de8",
+    formula:"Subject + <b>verb in past tense</b>",
+    usage:"To talk about completed actions or events in the past",
+    example:"I <b>DECIDED</b> to study English two years ago." },
+  { title:"Past Progressive", color:"#a89de8",
+    formula:"Subject + was/were + verb<b>+ing</b>",
+    usage:"To talk about actions that were in progress at a specific moment in the past",
+    example:"I <b>WAS WATCHING</b> a series in English before class." },
+  { title:"Future — Will", color:"#4ecba5",
+    formula:"Subject + <b>will</b> + base verb",
+    usage:"To talk about spontaneous decisions, predictions, or promises about the future",
+    example:"I <b>WILL LOOK</b> for a better job when I finish this course." },
+  { title:"Future — Going to", color:"#4ecba5",
+    formula:"Subject + am/is/are + <b>going to</b> + base verb",
+    usage:"To talk about plans and intentions already decided before the moment of speaking",
+    example:"I <b>AM GOING TO PRACTICE</b> speaking every day after class." },
+  { title:"Present Perfect", color:"#E8541A",
+    formula:"Subject + <b>have/has</b> + past participle",
+    usage:"To talk about past experiences or actions with a connection to the present",
+    example:"I <b>HAVE TRAVELED</b> to three different cities in Nicaragua." },
+  { title:"Present Perfect Progressive", color:"#E8541A",
+    formula:"Subject + <b>have/has + been</b> + verb<b>+ing</b>",
+    usage:"To talk about actions that started in the past and are still happening",
+    example:"She <b>HAS BEEN STUDYING</b> English for six months." },
+  { title:"Modal Verbs", color:"#EF9F27",
+    formula:"Subject + <b>modal</b> (should / must / had better / could / would / might / may) + base verb",
+    usage:"To express ability, advice, obligation, possibility, or polite requests",
+    example:"Students <b>SHOULD PRACTICE</b> speaking every day. · You <b>MUST</b> wear a seatbelt. · <b>Could</b> you help me?" },
+  { title:"Second Conditional", color:"#d47ab0",
+    formula:"<b>If</b> + subject + past verb, subject + <b>would</b> + base verb",
+    usage:"To talk about imaginary or hypothetical situations in the present or future",
+    example:"If I <b>COULD LIVE</b> abroad, I <b>WOULD CHOOSE</b> Canada." },
+  { title:"Comparatives", color:"#5db87a",
+    formula:"Subject + verb + adjective<b>+er</b> / <b>more</b> + adjective + <b>than</b>",
+    usage:"To compare two people, things, or situations",
+    example:"Speaking is <b>HARDER THAN</b> writing for most students." },
+  { title:"Superlatives", color:"#5db87a",
+    formula:"Subject + verb + <b>the</b> + adjective<b>+est</b> / <b>the most</b> + adjective",
+    usage:"To express that something has the highest or lowest degree of a quality in a group",
+    example:"Listening is <b>THE MOST DIFFICULT</b> skill for me." },
+];
+
+function buildRefresh() {
+  const grid = document.getElementById('refresh-grid');
+  grammarRefresh.forEach((item, i) => {
+    grid.innerHTML += `
+    <div class="refresh-card" id="rc_${i}">
+      <div class="refresh-card-header" onclick="toggleRefresh(${i})">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="refresh-card-tag" style="background:rgba(${hexToRgb(item.color)},.15);color:${item.color};border:1px solid ${item.color}40">${i+1}</span>
+          <span class="refresh-card-title">${item.title}</span>
+        </div>
+        <span class="refresh-chevron">▼</span>
+      </div>
+      <div class="refresh-body">
+        <div class="refresh-row">
+          <div class="refresh-label">Formula</div>
+          <div class="refresh-value">${item.formula}</div>
+        </div>
+        <div class="refresh-row">
+          <div class="refresh-label">Usage</div>
+          <div class="refresh-value">${item.usage}</div>
+        </div>
+        <div class="refresh-row">
+          <div class="refresh-label">Example</div>
+          <div class="refresh-example" style="color:${item.color}">${item.example}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+buildRefresh();
+
+function toggleRefresh(i) {
+  const card = document.getElementById(`rc_${i}`);
+  card.classList.toggle('open');
+}
+
+// ── Reading passages ───────────────────────────────────────────────────────
+const readings = [
+  {
+    title:"Reading 1: The Rise of Remote Work",
+    meta:"Topic: The Modern Workplace · ~350 words",
+    color:"#5fa8d3",
+    text:`<p class="vocab-note">💡 Hover over the <span style="color:#EF9F27">highlighted words</span> to see their definitions.</p>
+    <p>Over the past decade, the concept of remote work has undergone a dramatic <span class="vocab">transformation<span class="tooltip">transformation: a complete change in form, appearance, or nature</span></span>. What was once considered a rare <span class="vocab">privilege<span class="tooltip">privilege: a special right or advantage available only to certain people</span></span> reserved for a select few has now become a standard practice in many industries around the world. The global pandemic of 2020 acted as a <span class="vocab">catalyst<span class="tooltip">catalyst: something that causes or speeds up a change or event</span></span>, forcing companies to <span class="vocab">adapt<span class="tooltip">adapt: to change behavior or methods to deal with a new situation</span></span> almost overnight.</p>
+    <p>Many employees have reported feeling more <span class="vocab">productive<span class="tooltip">productive: achieving a significant amount of results or output</span></span> when working from home, citing fewer <span class="vocab">interruptions<span class="tooltip">interruptions: things that stop an activity temporarily</span></span> and a more flexible schedule. However, others have struggled with the lack of social interaction and the difficulty of maintaining a clear <span class="vocab">boundary<span class="tooltip">boundary: a line that marks the limit between two areas or situations</span></span> between their professional and personal lives. <span class="vocab">Burnout<span class="tooltip">burnout: a state of physical and mental exhaustion caused by prolonged stress</span></span> has become a growing concern, particularly among workers who feel they are always "on call."</p>
+    <p>Companies, on the other hand, have had to <span class="vocab">reconsider<span class="tooltip">reconsider: to think again about a decision, especially with the possibility of changing it</span></span> their approach to management and <span class="vocab">collaboration<span class="tooltip">collaboration: the action of working with someone to produce or achieve something</span></span>. Traditional <span class="vocab">hierarchies<span class="tooltip">hierarchies: systems in which people are ranked according to status or authority</span></span> have been challenged, and new tools for virtual communication have become <span class="vocab">indispensable<span class="tooltip">indispensable: absolutely necessary; impossible to do without</span></span>.</p>
+    <p>Despite its challenges, remote work has opened new opportunities for workers in developing countries. People who previously had limited access to high-paying jobs can now work for international companies without leaving their homes. This shift has <span class="vocab">profound<span class="tooltip">profound: very great or intense; having deep meaning or importance</span></span> implications for the global economy and the future of work as we know it.</p>`,
+    questions:[
+      { type:"mc", text:"According to the passage, what acted as a catalyst for remote work adoption?", options:["New communication technology","The global pandemic of 2020","A government policy change","The rise of social media"], answer:1 },
+      { type:"mc", text:"What does 'indispensable' mean in the context of the passage?", options:["Optional and convenient","Absolutely necessary","Expensive and complex","New and innovative"], answer:1 },
+      { type:"tf", text:"True or False: According to the passage, all employees feel more productive when working from home.", answer:false },
+      { type:"tf", text:"True or False: Remote work has created new job opportunities for workers in developing countries.", answer:true },
+      { type:"mc", text:"Which grammar structure correctly completes this sentence? 'Remote work _____ a rare privilege before the pandemic, but now it is common.'", options:["is","has been","was","will be"], answer:2 },
+      { type:"fitb", text:"Based on the passage: Companies _____ (have to / reconsider) their approach to management since remote work became common. (Present Perfect — Do not use contractions)", answer:["have had to reconsider"], hint:"have had to reconsider" },
+      { type:"mc", text:"The passage suggests that 'burnout' is a concern mainly because:", options:["Workers are not productive enough","Workers feel they are always available for work","Companies do not provide good tools","Remote work pays less than office work"], answer:1 },
+      { type:"fitb", text:"If companies _____ (not / adapt) to remote work, they _____ (lose) many talented employees. (Second Conditional — Do not use contractions)", answer:["did not adapt","would lose"], hint:"did not adapt / would lose" },
+      { type:"multi", text:"Which of the following are mentioned in the passage as challenges of remote work? (Select all that apply)", options:["Lack of social interaction","Lower salaries","Difficulty separating work and personal life","Burnout from always being available","Slow internet connections"], answers:[0,2,3] },
+      { type:"multi", text:"Which of the following statements are TRUE according to the passage? (Select all that apply)", options:["Remote work was always common before 2020","Companies have had to change how they manage teams","New communication platforms have grown significantly","Workers in developing countries have benefited from remote work","All workers prefer working from home"], answers:[1,2,3] },
+    ]
+  },
+  {
+    title:"Reading 2: Artificial Intelligence in the Workplace",
+    meta:"Topic: Technology & Employment · ~360 words",
+    color:"#EF9F27",
+    text:`<p class="vocab-note">💡 Hover over the <span style="color:#EF9F27">highlighted words</span> to see their definitions.</p>
+    <p>Artificial intelligence is no longer a concept confined to science fiction. It has <span class="vocab">permeated<span class="tooltip">permeated: spread through every part of something</span></span> nearly every sector of the global economy, from healthcare and finance to education and customer service. The speed at which AI tools have been <span class="vocab">deployed<span class="tooltip">deployed: put into use or action in an organized way</span></span> in professional environments has left many workers feeling both <span class="vocab">intrigued<span class="tooltip">intrigued: very curious and interested</span></span> and <span class="vocab">apprehensive<span class="tooltip">apprehensive: worried or anxious about something that might happen</span></span>.</p>
+    <p>One of the most <span class="vocab">contentious<span class="tooltip">contentious: causing a lot of argument or disagreement</span></span> debates surrounding AI is its potential impact on employment. Some <span class="vocab">economists<span class="tooltip">economists: experts who study the production, distribution, and consumption of goods and services</span></span> argue that AI will <span class="vocab">displace<span class="tooltip">displace: to take the place of something or force it out of its position</span></span> millions of workers, particularly in roles that involve <span class="vocab">repetitive<span class="tooltip">repetitive: done many times in the same way; monotonous</span></span> tasks. Others believe that AI will create new categories of jobs that we cannot yet <span class="vocab">envision<span class="tooltip">envision: to imagine or picture something in the future</span></span>.</p>
+    <p>Customer service is one of the areas most directly affected. AI-powered <span class="vocab">chatbots<span class="tooltip">chatbots: computer programs designed to simulate conversation with human users</span></span> have become increasingly <span class="vocab">sophisticated<span class="tooltip">sophisticated: highly developed, complex, and knowledgeable</span></span>, capable of handling a wide range of <span class="vocab">inquiries<span class="tooltip">inquiries: requests for information or questions</span></span> without human intervention. For companies like call centers, this represents a significant <span class="vocab">paradigm shift<span class="tooltip">paradigm shift: a fundamental change in approach or underlying assumptions</span></span>.</p>
+    <p>However, human skills such as <span class="vocab">empathy<span class="tooltip">empathy: the ability to understand and share the feelings of another person</span></span>, critical thinking, and <span class="vocab">nuanced<span class="tooltip">nuanced: showing small but important differences; not black and white</span></span> communication remain difficult to <span class="vocab">replicate<span class="tooltip">replicate: to copy or reproduce exactly</span></span> with current technology. Professionals who invest in developing these skills alongside technical <span class="vocab">proficiency<span class="tooltip">proficiency: a high degree of skill or competence in a particular area</span></span> are likely to remain <span class="vocab">resilient<span class="tooltip">resilient: able to recover quickly from difficulties; adaptable</span></span> in an AI-driven job market.</p>`,
+    questions:[
+      { type:"mc", text:"What does 'apprehensive' mean as used in the passage?", options:["Excited and motivated","Worried and anxious","Confused and lost","Satisfied and relieved"], answer:1 },
+      { type:"tf", text:"True or False: According to the passage, AI has only affected the healthcare industry.", answer:false },
+      { type:"tf", text:"True or False: The passage suggests that human skills like empathy are still hard for AI to replicate.", answer:true },
+      { type:"mc", text:"According to the passage, which workers are most likely to stay resilient in an AI-driven market?", options:["Workers who avoid using technology","Workers who develop human skills alongside technical proficiency","Workers who specialize only in repetitive tasks","Workers who have been in their jobs for many years"], answer:1 },
+      { type:"mc", text:"The word 'contentious' in the passage is closest in meaning to:", options:["important","popular","controversial","recent"], answer:2 },
+      { type:"fitb", text:"AI tools _____ (deploy) in many workplaces over the last few years. (Present Perfect — Do not use contractions)", answer:["have been deployed"], hint:"have been deployed" },
+      { type:"mc", text:"Which sentence best summarizes the main idea of the passage?", options:["AI is replacing all human workers very quickly.","AI is only useful in customer service roles.","AI is changing the workplace and workers must adapt by developing uniquely human skills.","AI technology is too expensive for most companies to use."], answer:2 },
+      { type:"fitb", text:"If AI _____ (continue) to develop at this pace, many traditional jobs _____ (disappear). (Second Conditional — Do not use contractions)", answer:["continued","would disappear"], hint:"continued / would disappear" },
+      { type:"multi", text:"Which of the following human skills does the passage say are difficult for AI to replicate? (Select all that apply)", options:["Data analysis","Empathy","Critical thinking","Nuanced communication","Speed of processing information"], answers:[1,2,3] },
+      { type:"multi", text:"Which of the following statements are TRUE according to the passage? (Select all that apply)", options:["AI has spread across many industries","All economists agree AI will destroy jobs","Chatbots can handle customer inquiries without human help","Workers who develop human skills have a better chance in an AI world","AI is confined only to science fiction"], answers:[0,2,3] },
+    ]
+  },
+  {
+    title:"Reading 3: The Importance of Emotional Intelligence at Work",
+    meta:"Topic: Professional Skills & Workplace Culture · ~370 words",
+    color:"#4ecba5",
+    text:`<p class="vocab-note">💡 Hover over the <span style="color:#EF9F27">highlighted words</span> to see their definitions.</p>
+    <p>For decades, <span class="vocab">cognitive<span class="tooltip">cognitive: related to the process of thinking, understanding, and learning</span></span> ability and technical knowledge were considered the most important <span class="vocab">attributes<span class="tooltip">attributes: qualities or characteristics belonging to someone or something</span></span> for professional success. However, research over the past thirty years has consistently shown that <span class="vocab">emotional intelligence<span class="tooltip">emotional intelligence: the ability to recognize, understand, and manage your own emotions and those of others</span></span> — often referred to as EQ — plays an equally, if not more, critical role in determining long-term career outcomes.</p>
+    <p>Emotional intelligence <span class="vocab">encompasses<span class="tooltip">encompasses: includes or contains a wide range of things</span></span> several key <span class="vocab">competencies<span class="tooltip">competencies: skills and abilities required to do something successfully</span></span>, including <span class="vocab">self-awareness<span class="tooltip">self-awareness: conscious knowledge of your own character, feelings, and motives</span></span>, <span class="vocab">empathy<span class="tooltip">empathy: the ability to understand and share the feelings of another person</span></span>, and the ability to <span class="vocab">regulate<span class="tooltip">regulate: to control or maintain the rate or speed of something</span></span> one's emotions under pressure. In high-stress environments such as call centers, hospitals, or financial institutions, these skills are not merely <span class="vocab">desirable<span class="tooltip">desirable: worth having or wanting; attractive</span></span> — they are <span class="vocab">imperative<span class="tooltip">imperative: of vital importance; absolutely necessary</span></span>.</p>
+    <p>Studies have shown that managers with high EQ tend to build more <span class="vocab">cohesive<span class="tooltip">cohesive: united and working well together as a group</span></span> teams, experience lower <span class="vocab">turnover<span class="tooltip">turnover: the rate at which employees leave and are replaced in a company</span></span> rates, and achieve better overall performance. Employees who feel <span class="vocab">acknowledged<span class="tooltip">acknowledged: recognized and accepted as valid or important</span></span> and understood are significantly more <span class="vocab">engaged<span class="tooltip">engaged: involved and interested in something; committed</span></span> in their work and less likely to experience <span class="vocab">burnout<span class="tooltip">burnout: a state of exhaustion caused by prolonged stress or overwork</span></span>.</p>
+    <p>Despite its clear benefits, emotional intelligence is still <span class="vocab">undervalued<span class="tooltip">undervalued: not given enough recognition or importance</span></span> in many organizations. Many companies continue to <span class="vocab">prioritize<span class="tooltip">prioritize: to treat something as more important than other things</span></span> technical skills during the <span class="vocab">recruitment<span class="tooltip">recruitment: the process of finding and hiring new employees</span></span> process, overlooking candidates who may <span class="vocab">excel<span class="tooltip">excel: to be exceptionally good at something</span></span> in interpersonal skills. Experts <span class="vocab">advocate<span class="tooltip">advocate: to publicly support or recommend a particular cause or policy</span></span> for a more <span class="vocab">holistic<span class="tooltip">holistic: considering the whole of something, not just its parts</span></span> approach to hiring and <span class="vocab">talent development<span class="tooltip">talent development: the process of identifying and improving the skills of employees</span></span>.</p>`,
+    questions:[
+      { type:"mc", text:"What does 'imperative' mean as used in the passage?", options:["Optional","Absolutely necessary","Slightly helpful","Difficult to achieve"], answer:1 },
+      { type:"tf", text:"True or False: According to the passage, technical skills are the most important factor for long-term career success.", answer:false },
+      { type:"mc", text:"According to the passage, managers with high EQ tend to:", options:["Focus only on technical performance","Build cohesive teams with lower turnover rates","Avoid giving feedback to employees","Prioritize hiring over team development"], answer:1 },
+      { type:"tf", text:"True or False: The passage argues that emotional intelligence is currently overvalued in most organizations.", answer:false },
+      { type:"mc", text:"The word 'cohesive' in the passage is closest in meaning to:", options:["competitive","united and well-organized","large and diverse","experienced and skilled"], answer:1 },
+      { type:"fitb", text:"Managers _____ (develop) their emotional intelligence for years before seeing real results. (Present Perfect Progressive — Do not use contractions)", answer:["have been developing"], hint:"have been developing" },
+      { type:"mc", text:"What is the main recommendation experts make according to the final paragraph?", options:["Companies should stop hiring for technical skills","Companies should use a holistic approach that values both human and technical skills","Companies should focus only on EQ during recruitment","Companies should train managers to ignore emotions at work"], answer:1 },
+      { type:"fitb", text:"If companies _____ (value) emotional intelligence more, they _____ (have) less employee turnover. (Second Conditional — Do not use contractions)", answer:["valued","would have"], hint:"valued / would have" },
+      { type:"multi", text:"Which of the following are listed as key competencies of emotional intelligence in the passage? (Select all that apply)", options:["Self-awareness","Technical proficiency","Empathy","Ability to regulate emotions","Speed of completing tasks"], answers:[0,2,3] },
+      { type:"multi", text:"Which of the following are TRUE according to the passage? (Select all that apply)", options:["EQ is currently undervalued in many companies","Employees who feel acknowledged are more engaged","All companies already use a holistic hiring approach","High EQ managers have lower team turnover","Technical skills are no longer important at work"], answers:[0,1,3] },
+    ]
+  }
+];
+
+// ── Grammar sections ───────────────────────────────────────────────────────
+const grammarSections = [
+  { title:"Simple Present", tag:"Section 1", desc:"Habits, routines, and general facts", color:"#5fa8d3", questions:[
+    { type:"mc", text:"She _____ to work every day by bus.", options:["go","goes","is going","went"], answer:1 },
+    { type:"mc", text:"Which sentence is in the Simple Present?", options:["He was eating lunch.","They will travel tomorrow.","We study English on Mondays.","I have seen that movie."], answer:2 },
+    { type:"tf", text:"True or False: 'They plays soccer on weekends.' is a correct Simple Present sentence.", answer:false },
+    { type:"tf", text:"True or False: The Simple Present is used to talk about habits and routines.", answer:true },
+    { type:"fitb", text:"Complete: My brother _____ (not / work) on Sundays. (Do not use contractions)", answer:["does not work"], hint:"does not work" },
+    { type:"fitb", text:"Complete: How often _____ you _____ (exercise)? (Do not use contractions)", answer:["do","exercise"], hint:"do / exercise" },
+    { type:"multi", text:"Which of the following sentences are correct Simple Present sentences? (Select all that apply)", options:["She works at a call center.","They are going to the store right now.","He plays tennis every Saturday.","I have eaten breakfast already.","Water boils at 100 degrees Celsius."], answers:[0,2,4] },
+    { type:"multi", text:"Which of the following time expressions are commonly used with the Simple Present? (Select all that apply)", options:["every day","yesterday","always","last week","usually"], answers:[0,2,4] },
+  ]},
+  { title:"Present Progressive", tag:"Section 2", desc:"Actions happening right now or around this time", color:"#5fa8d3", questions:[
+    { type:"mc", text:"Look! The children _____ in the park.", options:["play","played","are playing","have played"], answer:2 },
+    { type:"mc", text:"Which sentence uses the Present Progressive correctly?", options:["She is know the answer.","He is working from home this week.","They are go to the store.","I am have a good time."], answer:1 },
+    { type:"tf", text:"True or False: 'He is studying for his exam right now.' is correct.", answer:true },
+    { type:"tf", text:"True or False: The Present Progressive uses 'did' as an auxiliary.", answer:false },
+    { type:"fitb", text:"Complete: My parents _____ (travel) to Costa Rica this month. (Do not use contractions)", answer:["are traveling","are travelling"], hint:"are traveling" },
+    { type:"multi", text:"Which of the following sentences use the Present Progressive correctly? (Select all that apply)", options:["She is reading a book right now.","They is playing soccer.","I am studying for my exam this week.","He are working late tonight.","We are learning new grammar structures."], answers:[0,2,4] },
+    { type:"multi", text:"Which of the following situations call for the Present Progressive? (Select all that apply)", options:["Describing a habit you have every day","Talking about something happening at this moment","Describing a temporary situation around now","Talking about a completed action in the past","Describing something you are in the middle of doing"], answers:[1,2,4] },
+  ]},
+  { title:"Simple Past", tag:"Section 3", desc:"Completed actions in the past", color:"#a89de8", questions:[
+    { type:"mc", text:"Last night, I _____ a great movie.", options:["watch","am watching","watched","have watched"], answer:2 },
+    { type:"mc", text:"Which is the correct negative form in Simple Past?", options:["She did not went to the party.","She did not go to the party.","She was not go to the party.","She not went to the party."], answer:1 },
+    { type:"tf", text:"True or False: 'They buyed a new car last year.' is grammatically correct.", answer:false },
+    { type:"tf", text:"True or False: The Simple Past is used to talk about actions that are finished.", answer:true },
+    { type:"fitb", text:"Complete: We _____ (not / see) that movie last weekend. (Do not use contractions)", answer:["did not see"], hint:"did not see" },
+    { type:"fitb", text:"Complete: Where _____ you _____ (go) last summer?", answer:["did","go"], hint:"did / go" },
+    { type:"multi", text:"Which of the following sentences are correct Simple Past sentences? (Select all that apply)", options:["She went to the store yesterday.","I have visited that city last year.","They studied all night before the exam.","He is walked to work this morning.","We traveled to Guatemala in 2022."], answers:[0,2,4] },
+    { type:"multi", text:"Which time expressions are commonly used with the Simple Past? (Select all that apply)", options:["since","yesterday","already","last week","two years ago"], answers:[1,3,4] },
+  ]},
+  { title:"Past Progressive", tag:"Section 4", desc:"Actions in progress at a specific moment in the past", color:"#a89de8", questions:[
+    { type:"mc", text:"At 8pm last night, she _____ dinner.", options:["cooks","was cooking","cooked","has cooked"], answer:1 },
+    { type:"mc", text:"Which sentence correctly uses the Past Progressive?", options:["I was study when you called.","They were sleeping when the alarm went off.","He was go to the gym.","We were eaten lunch."], answer:1 },
+    { type:"tf", text:"True or False: 'They were watching TV when the lights went out.' is correct.", answer:true },
+    { type:"tf", text:"True or False: Past Progressive uses 'did' as an auxiliary.", answer:false },
+    { type:"fitb", text:"Complete: I _____ (listen) to music when my phone rang.", answer:["was listening"], hint:"was listening" },
+    { type:"multi", text:"Which of the following sentences correctly use the Past Progressive? (Select all that apply)", options:["She was cooking dinner when he arrived.","They were study all night.","I was talking on the phone at 9pm.","He was walked to work when it started to rain.","We were watching a movie when the power went out."], answers:[0,2,4] },
+    { type:"multi", text:"Which of the following are TRUE about the Past Progressive? (Select all that apply)", options:["It uses was/were + verb+ing","It describes actions completed in the past","It is often used with 'when' and 'while'","It uses did as an auxiliary","It describes actions in progress at a past moment"], answers:[0,2,4] },
+  ]},
+  { title:"Future — Will", tag:"Section 5", desc:"Predictions, spontaneous decisions, and promises", color:"#4ecba5", questions:[
+    { type:"mc", text:"I think it _____ rain tomorrow.", options:["is going to","will","rains","is raining"], answer:1 },
+    { type:"mc", text:"Which sentence shows a spontaneous decision using 'will'?", options:["I am going to visit my aunt this weekend.","The phone is ringing — I will answer it!","She will travel to Spain next year.","They will have a meeting tomorrow."], answer:1 },
+    { type:"tf", text:"True or False: 'Will' is used for plans decided before the moment of speaking.", answer:false },
+    { type:"tf", text:"True or False: 'I will help you with that.' is a correct use of 'will' for a promise.", answer:true },
+    { type:"fitb", text:"Complete: She _____ (not / come) to the party tonight. (Do not use contractions)", answer:["will not come"], hint:"will not come" },
+    { type:"fitb", text:"Complete: Do you think they _____ (win) the game?", answer:["will win"], hint:"will win" },
+    { type:"multi", text:"Which of the following are correct uses of 'will'? (Select all that apply)", options:["Making a spontaneous decision","Describing a habit you have every day","Making a prediction about the future","Making a promise","Describing a plan made last week"], answers:[0,2,3] },
+    { type:"multi", text:"Which of the following sentences use 'will' correctly? (Select all that apply)", options:["I will call you when I arrive.","She will going to the store later.","They will probably be late.","He wills finish the report tomorrow.","We will not attend the meeting."], answers:[0,2,4] },
+  ]},
+  { title:"Future — Going to", tag:"Section 6", desc:"Plans and intentions decided before the moment of speaking", color:"#4ecba5", questions:[
+    { type:"mc", text:"Look at those clouds! It _____ rain.", options:["will","is going to","rains","rained"], answer:1 },
+    { type:"mc", text:"Which sentence shows a pre-planned intention?", options:["I will call you later.","She is going to start a new course next month.","He works hard every day.","They traveled to Mexico last year."], answer:1 },
+    { type:"tf", text:"True or False: 'Going to' is used when there is visible evidence something will happen soon.", answer:true },
+    { type:"tf", text:"True or False: 'We are going to visited Paris next summer.' is correct.", answer:false },
+    { type:"fitb", text:"Complete: He _____ (not / study) medicine. He changed his mind. (Do not use contractions)", answer:["is not going to study"], hint:"is not going to study" },
+    { type:"multi", text:"Which of the following are correct uses of 'going to'? (Select all that apply)", options:["Talking about a plan made before now","Making a spontaneous offer","Describing visible evidence of a future event","Talking about intentions for the future","Describing something that happened yesterday"], answers:[0,2,3] },
+    { type:"multi", text:"Which sentences use 'going to' correctly? (Select all that apply)", options:["She is going to start her new job next Monday.","They are going to traveled to Panama.","I am going to study harder this semester.","He going to call you later.","We are going to watch a movie tonight."], answers:[0,2,4] },
+  ]},
+  { title:"Present Perfect", tag:"Section 7", desc:"Past experiences with a connection to the present", color:"#E8541A", questions:[
+    { type:"mc", text:"I _____ never _____ sushi before.", options:["did / eat","have / eaten","was / eating","am / eating"], answer:1 },
+    { type:"mc", text:"Which time expression is commonly used with the Present Perfect?", options:["yesterday","last week","already","two days ago"], answer:2 },
+    { type:"tf", text:"True or False: 'She has lived in Managua since 2015.' is correct.", answer:true },
+    { type:"tf", text:"True or False: 'They have went to the store.' is grammatically correct.", answer:false },
+    { type:"fitb", text:"Complete: We _____ (not / finish) the project yet. (Do not use contractions)", answer:["have not finished"], hint:"have not finished" },
+    { type:"fitb", text:"Complete: How long _____ you _____ (study) English?", answer:["have","studied"], hint:"have / studied" },
+    { type:"multi", text:"Which of the following time expressions are used with the Present Perfect? (Select all that apply)", options:["already","yesterday","ever","since","last Monday"], answers:[0,2,3] },
+    { type:"multi", text:"Which sentences are correct Present Perfect sentences? (Select all that apply)", options:["She has already finished her homework.","They have went to the store.","I have never tried Japanese food.","He has been working here since 2020.","We visited that museum last year."], answers:[0,2,3] },
+  ]},
+  { title:"Present Perfect Progressive", tag:"Section 8", desc:"Actions that started in the past and are still happening", color:"#E8541A", questions:[
+    { type:"mc", text:"She _____ English for two years and she is still learning.", options:["studied","has studied","has been studying","is studying"], answer:2 },
+    { type:"mc", text:"Which sentence uses the Present Perfect Progressive correctly?", options:["They have been wait for an hour.","He has been working on that report all morning.","I have been go to the gym lately.","She has been ate lunch."], answer:1 },
+    { type:"tf", text:"True or False: 'He has been sleeping for 10 hours.' means he is still asleep.", answer:true },
+    { type:"tf", text:"True or False: Present Perfect Progressive and Simple Past mean the same thing.", answer:false },
+    { type:"fitb", text:"Complete: I _____ (study) all day and I am exhausted. (Present Perfect Progressive — Do not use contractions)", answer:["have been studying"], hint:"have been studying" },
+    { type:"multi", text:"Which sentences correctly use the Present Perfect Progressive? (Select all that apply)", options:["She has been learning French for six months.","They have been waited for two hours.","I have been working on this project all week.","He has been go to the gym every day.","We have been trying to reach you all morning."], answers:[0,2,4] },
+    { type:"multi", text:"Which of the following are TRUE about the Present Perfect Progressive? (Select all that apply)", options:["It uses have/has + been + verb+ing","It describes actions that are completely finished","It emphasizes the duration of an ongoing action","It can be used with 'for' and 'since'","It is formed with did + been + verb+ing"], answers:[0,2,3] },
+  ]},
+  { title:"Modal Verbs", tag:"Section 9", desc:"Should, Must, Had better, Could, Would, Might, May", color:"#EF9F27", questions:[
+    { type:"mc", text:"You look sick. You _____ see a doctor.", options:["might","could","should","would"], answer:2 },
+    { type:"mc", text:"Which sentence expresses strong obligation?", options:["You might finish the report.","You must wear a seatbelt in a car.","You could try the new restaurant.","You should probably call her."], answer:1 },
+    { type:"mc", text:"She _____ be at the office. I saw her car outside.", options:["had better","must","would","might"], answer:1 },
+    { type:"mc", text:"You _____ touch that. It is very hot.", options:["might not","could","had better not","should"], answer:2 },
+    { type:"tf", text:"True or False: 'Could' can be used to make polite requests.", answer:true },
+    { type:"tf", text:"True or False: 'May' and 'Might' express certainty about the future.", answer:false },
+    { type:"tf", text:"True or False: 'Had better' is used to give strong advice or warnings.", answer:true },
+    { type:"fitb", text:"Complete: You _____ (should / negative) eat so much sugar. (Do not use contractions)", answer:["should not eat"], hint:"should not eat" },
+    { type:"fitb", text:"Complete: _____ I open the window? (Use a polite modal)", answer:["may i","could i","might i"], hint:"May / Could / Might + I" },
+    { type:"multi", text:"Which of the following modal verbs can be used to give advice? (Select all that apply)", options:["should","must","had better","might","could"], answers:[0,1,2,4] },
+    { type:"multi", text:"Which sentences use modal verbs correctly? (Select all that apply)", options:["You should to study more.","She might be late tonight.","He could help you if you asked.","They must to wear uniforms.","You had better finish that report before the meeting."], answers:[1,2,4] },
+  ]},
+  { title:"Second Conditional", tag:"Section 10", desc:"Imaginary or hypothetical situations", color:"#d47ab0", questions:[
+    { type:"mc", text:"If I _____ more money, I _____ travel the world.", options:["have / will","had / would","have / would","had / will"], answer:1 },
+    { type:"mc", text:"Which sentence is a correct Second Conditional?", options:["If she studies hard, she will pass.","If he had a car, he would drive to work.","If it rains, we will stay inside.","If I see him, I will tell him."], answer:1 },
+    { type:"tf", text:"True or False: The Second Conditional talks about real and likely situations.", answer:false },
+    { type:"tf", text:"True or False: 'If I were you, I would apologize.' is a correct Second Conditional.", answer:true },
+    { type:"fitb", text:"Complete: If she _____ (speak) English fluently, she _____ (get) that job. (Do not use contractions)", answer:["spoke","would get"], hint:"spoke / would get" },
+    { type:"fitb", text:"Complete: What _____ you do if you _____ (win) the lottery?", answer:["would","won"], hint:"would / won" },
+    { type:"multi", text:"Which of the following are correct Second Conditional sentences? (Select all that apply)", options:["If I had more time, I would read more books.","If it rains tomorrow, I will stay home.","If she were taller, she would be a model.","If I win the lottery, I will travel the world.","If he studied harder, he would pass his exams."], answers:[0,2,4] },
+    { type:"multi", text:"Which of the following are TRUE about the Second Conditional? (Select all that apply)", options:["It uses 'if' + past tense in the condition clause","It uses 'would' + base verb in the result clause","It talks about real and certain future situations","It can use 'were' instead of 'was' for all subjects","It is used for hypothetical or imaginary situations"], answers:[0,1,3,4] },
+  ]},
+  { title:"Comparatives", tag:"Section 11", desc:"Comparing two people, things, or situations", color:"#5db87a", questions:[
+    { type:"mc", text:"This exercise is _____ than the last one.", options:["more difficult","the most difficult","difficulter","most difficult"], answer:0 },
+    { type:"mc", text:"Which sentence uses a comparative correctly?", options:["She is more taller than her sister.","He works hardest than me.","This book is more interesting than that one.","They are more smarter than us."], answer:2 },
+    { type:"tf", text:"True or False: 'My English is better than it was last year.' is a correct comparative.", answer:true },
+    { type:"tf", text:"True or False: We use 'most' to compare two things.", answer:false },
+    { type:"fitb", text:"Complete: Speaking is _____ (hard) _____ writing for most students.", answer:["harder","than"], hint:"harder / than" },
+    { type:"multi", text:"Which of the following sentences use comparatives correctly? (Select all that apply)", options:["She is more intelligent than her classmates.","He is the most tallest person in the room.","This test is harder than the last one.","English is more easier than German.","My score is better than yours."], answers:[0,2,4] },
+    { type:"multi", text:"Which of the following rules about comparatives are correct? (Select all that apply)", options:["Short adjectives add -er + than","Long adjectives use more + adjective + than","All adjectives use 'most' to compare two things","'Than' is used to introduce the second element of comparison","Double comparatives like 'more taller' are correct"], answers:[0,1,3] },
+  ]},
+  { title:"Superlatives", tag:"Section 12", desc:"Expressing the highest or lowest degree in a group", color:"#5db87a", questions:[
+    { type:"mc", text:"She is _____ student in the class.", options:["the most smart","the smartest","smarter","more smart"], answer:1 },
+    { type:"mc", text:"Which sentence uses the superlative correctly?", options:["This is the more beautiful city I have visited.","He is tallest person I know.","Listening is the most difficult skill for me.","She runs the more fast in the team."], answer:2 },
+    { type:"tf", text:"True or False: 'This is the worse day of my life.' is grammatically correct.", answer:false },
+    { type:"tf", text:"True or False: Superlatives are used to compare more than two things or people.", answer:true },
+    { type:"fitb", text:"Complete: What is _____ (challenging) part of learning English for you?", answer:["the most challenging"], hint:"the most challenging" },
+    { type:"fitb", text:"Complete: That was _____ (bad) movie I have ever seen.", answer:["the worst"], hint:"the worst" },
+    { type:"multi", text:"Which of the following sentences use superlatives correctly? (Select all that apply)", options:["She is the most dedicated student in the class.","He is the more experienced worker on the team.","This is the hardest test I have ever taken.","That was the most interesting book I have read this year.","She runs the more fast in the group."], answers:[0,2,3] },
+    { type:"multi", text:"Which of the following rules about superlatives are correct? (Select all that apply)", options:["Short adjectives use the + adjective + -est","Long adjectives use the most + adjective","Superlatives compare exactly two things","The article 'the' is always used before a superlative","'Most' is never used with short adjectives like fast or hard"], answers:[0,1,3] },
+  ]},
+];
+
+let allAnswers = {};
+let multiAnswers = {};
+let totalQ = 0;
+
+function startTest() {
+  const name = document.getElementById('student-name').value.trim();
+  if (!name) { alert('Please enter your name before starting.'); return; }
+  document.getElementById('cover').style.display = 'none';
+  const area = document.getElementById('test-area');
+  area.style.display = 'block';
+
+  let html = '';
+  let qIndex = 0;
+
+  grammarSections.forEach((sec, si) => {
+    html += `<div class="section-header" style="border-left-color:${sec.color}">
+      <div class="section-tag" style="color:${sec.color}">${sec.tag} — ${sec.title}</div>
+      <p>${sec.desc}</p>
+    </div>`;
+    sec.questions.forEach((q, qi) => { qIndex++; totalQ++; html += renderQ(q, `g_${si}_${qi}`, qIndex); });
+  });
+
+  readings.forEach((r, ri) => {
+    html += `<div class="section-header" style="border-left-color:${r.color}">
+      <div class="section-tag" style="color:${r.color}">Reading Section ${ri+1}</div>
+      <h2>${r.title}</h2><p>${r.meta}</p>
+    </div>
+    <div class="reading-passage"><h3>${r.title}</h3><div class="reading-meta">${r.meta}</div>${r.text}</div>`;
+    r.questions.forEach((q, qi) => { qIndex++; totalQ++; html += renderQ(q, `r_${ri}_${qi}`, qIndex); });
+  });
+
+  html += `<div class="submit-wrap"><p>Make sure you have answered all questions before submitting.</p><button class="btn" onclick="submitTest()">Submit Test →</button></div>`;
+  area.innerHTML = html;
+  updateProgress();
+}
+
+function renderQ(q, id, num) {
+  let html = `<div class="q-card" id="card_${id}"><div class="q-num">Question ${num}</div><div class="q-text">${q.text}</div>`;
+  if (q.type === 'mc') {
+    html += `<div class="options">`;
+    q.options.forEach((opt, oi) => {
+      html += `<label class="opt" id="opt_${id}_${oi}" onclick="selectMC('${id}',${oi})"><input type="radio" name="${id}" value="${oi}"> ${opt}</label>`;
+    });
+    html += `</div>`;
+  } else if (q.type === 'tf') {
+    html += `<div class="tf-options">
+      <button class="tf-btn" id="tf_${id}_true" onclick="selectTF('${id}',true)">✓ True</button>
+      <button class="tf-btn" id="tf_${id}_false" onclick="selectTF('${id}',false)">✗ False</button>
+    </div>`;
+  } else if (q.type === 'fitb') {
+    if (q.hint) html += `<div class="q-note">💡 Expected format: <b>${q.hint}</b> — Do not use contractions.</div>`;
+    html += `<input class="fitb-input" id="fitb_${id}" placeholder="Write your answer here..." oninput="recordFITB('${id}', this.value)"/>`;
+  } else if (q.type === 'multi') {
+    html += `<div class="q-multi-note">✅ Select all correct answers.</div><div class="options">`;
+    q.options.forEach((opt, oi) => {
+      html += `<label class="opt" id="mopt_${id}_${oi}" onclick="toggleMulti('${id}',${oi},${q.options.length})"><input type="checkbox" id="mcheck_${id}_${oi}"> ${opt}</label>`;
+    });
+    html += `</div>`;
+    multiAnswers[id] = [];
+  }
+  html += `</div>`;
+  return html;
+}
+
+function selectMC(id, idx) {
+  allAnswers[id] = idx;
+  document.querySelectorAll(`[id^="opt_${id}_"]`).forEach(el => el.classList.remove('selected'));
+  document.getElementById(`opt_${id}_${idx}`).classList.add('selected');
+  document.getElementById(`card_${id}`).classList.add('answered');
+  updateProgress();
+}
+function selectTF(id, val) {
+  allAnswers[id] = val;
+  document.getElementById(`tf_${id}_true`).className = 'tf-btn' + (val ? ' selected-true' : '');
+  document.getElementById(`tf_${id}_false`).className = 'tf-btn' + (!val ? ' selected-false' : '');
+  document.getElementById(`card_${id}`).classList.add('answered');
+  updateProgress();
+}
+function recordFITB(id, val) {
+  allAnswers[id] = val.trim().toLowerCase();
+  document.getElementById(`card_${id}`).classList.add('answered');
+  updateProgress();
+}
+function toggleMulti(id, idx, total) {
+  if (!multiAnswers[id]) multiAnswers[id] = [];
+  const i = multiAnswers[id].indexOf(idx);
+  const box = document.getElementById(`mcheck_${id}_${idx}`);
+  const lbl = document.getElementById(`mopt_${id}_${idx}`);
+  if (i === -1) { multiAnswers[id].push(idx); box.checked = true; lbl.classList.add('selected-multi'); }
+  else { multiAnswers[id].splice(i,1); box.checked = false; lbl.classList.remove('selected-multi'); }
+  if (multiAnswers[id].length > 0) document.getElementById(`card_${id}`).classList.add('answered');
+  updateProgress();
+}
+function updateProgress() {
+  const answered = Object.keys(allAnswers).length + Object.keys(multiAnswers).filter(k => multiAnswers[k].length > 0).length;
+  document.getElementById('progress').style.width = Math.min(100, (answered / totalQ) * 100) + '%';
+}
+
+function scoreSection(questions, prefix) {
+  let sc = 0;
+  questions.forEach((q, qi) => {
+    const id = `${prefix}_${qi}`;
+    if (q.type === 'mc' || q.type === 'tf') {
+      if (allAnswers[id] === q.answer) sc++;
+    } else if (q.type === 'fitb') {
+      const accepted = Array.isArray(q.answer) ? q.answer : [q.answer];
+      const userVal = (allAnswers[id] || '').toLowerCase().trim();
+      if (accepted.some(a => userVal === a.toLowerCase().trim())) sc++;
+    } else if (q.type === 'multi') {
+      const userSel = (multiAnswers[id] || []).slice().sort().join(',');
+      const correct = q.answers.slice().sort().join(',');
+      if (userSel === correct) sc++;
+    }
+  });
+  return sc;
+}
+
+function submitTest() {
+  const name = document.getElementById('student-name').value.trim() || 'Student';
+  let correct = 0;
+  let bdHtml = '<h3>Score by Section</h3>';
+
+  grammarSections.forEach((sec, si) => {
+    const sc = scoreSection(sec.questions, `g_${si}`);
+    correct += sc;
+    const pctS = Math.round((sc/sec.questions.length)*100);
+    bdHtml += `<div class="bd-row"><div class="bd-label">${sec.title}</div><div class="bd-bar-wrap"><div class="bd-bar" style="width:${pctS}%;background:${sec.color}"></div></div><div class="bd-score">${sc}/${sec.questions.length}</div></div>`;
+  });
+  readings.forEach((r, ri) => {
+    const sc = scoreSection(r.questions, `r_${ri}`);
+    correct += sc;
+    const pctS = Math.round((sc/r.questions.length)*100);
+    bdHtml += `<div class="bd-row"><div class="bd-label">Reading ${ri+1}</div><div class="bd-bar-wrap"><div class="bd-bar" style="width:${pctS}%;background:${r.color}"></div></div><div class="bd-score">${sc}/${r.questions.length}</div></div>`;
+  });
+
+  const pct = Math.round((correct/totalQ)*100);
+  let cefr, cefrColor, cefrDesc;
+  if      (pct>=90){cefr='C1 – C2';cefrColor='#4ecba5';cefrDesc='Outstanding! You demonstrate a very high command of English grammar and reading comprehension. You are ready for advanced professional communication.';}
+  else if (pct>=75){cefr='B2';cefrColor='#5fa8d3';cefrDesc='Great work! You have a strong command of English. You can understand complex texts and express yourself clearly in most situations.';}
+  else if (pct>=60){cefr='B1';cefrColor='#EF9F27';cefrDesc='Good job! You are at an intermediate level. You can communicate in familiar situations and handle a range of grammar structures.';}
+  else if (pct>=45){cefr='A2';cefrColor='#d47ab0';cefrDesc='Keep going! You are building your foundation. Focus on reviewing the tenses and reading more in English every day.';}
+  else             {cefr='A1';cefrColor='#E8541A';cefrDesc='You are at the beginning of your journey. Every expert was once a beginner — keep practicing and you will improve!';}
+
+  document.getElementById('test-area').style.display = 'none';
+  const res = document.getElementById('results-area');
+  res.style.display = 'block';
+  document.getElementById('res-name').textContent = name + "'s Results";
+  document.getElementById('res-score').textContent = pct + '%';
+  document.getElementById('res-score-label').textContent = `${correct} out of ${totalQ} correct answers`;
+  const badge = document.getElementById('cefr-badge');
+  badge.textContent = 'CEFR Level: ' + cefr;
+  badge.style.background = `rgba(${hexToRgb(cefrColor)},.15)`;
+  badge.style.border = `2px solid ${cefrColor}`;
+  badge.style.color = cefrColor;
+  document.getElementById('cefr-desc').textContent = cefrDesc;
+  document.getElementById('breakdown').innerHTML = bdHtml;
+  document.getElementById('progress').style.width = '100%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function hexToRgb(hex){return `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`;}
+</script>
+</body>
+</html>
