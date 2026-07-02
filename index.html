@@ -552,7 +552,7 @@ function renderQ(q, id, num) {
       <button class="tf-btn" id="tf_${id}_false" onclick="selectTF('${id}',false)">✗ False</button>
     </div>`;
   } else if (q.type === 'fitb') {
-    if (q.hint) html += `<div class="q-note">💡 Expected format: <b>${q.hint}</b> — Do not use contractions.</div>`;
+    
     html += `<input class="fitb-input" id="fitb_${id}" placeholder="Write your answer here..." oninput="recordFITB('${id}', this.value)"/>`;
   } else if (q.type === 'multi') {
     html += `<div class="q-multi-note">✅ Select all correct answers.</div><div class="options">`;
