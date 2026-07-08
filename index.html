@@ -302,6 +302,38 @@
   @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
   @keyframes countUp { from { opacity:0; transform:scale(.7); } to { opacity:1; transform:scale(1); } }
   .animate-in { animation:fadeUp .4s ease both; }
+
+  /* Processing dots */
+  @keyframes procBounce { 0%,80%,100% { transform:scale(0); opacity:.3; } 40% { transform:scale(1); opacity:1; } }
+  .proc-dot { width:12px; height:12px; border-radius:50%; background:#E8541A; animation:procBounce 1.2s infinite ease-in-out both; box-shadow:0 0 8px rgba(232,84,26,.5); }
+
+  /* Confetti canvas */
+  #confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:500; display:none; }
+
+  /* Verdict animations */
+  @keyframes shake {
+    0%,100% { transform:translateX(0); }
+    10%,50%,90% { transform:translateX(-8px); }
+    30%,70% { transform:translateX(8px); }
+  }
+  @keyframes stampIn {
+    0% { transform:scale(3) rotate(-15deg); opacity:0; }
+    60% { transform:scale(0.9) rotate(3deg); opacity:1; }
+    80% { transform:scale(1.05) rotate(-1deg); }
+    100% { transform:scale(1) rotate(0deg); opacity:1; }
+  }
+  @keyframes iconPulse {
+    0%,100% { transform:scale(1); opacity:1; }
+    50% { transform:scale(1.15); opacity:.8; }
+  }
+  .verdict-shake { animation:shake 0.6s ease both; }
+  .verdict-stamp { animation:stampIn 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+  .verdict-pulse { animation:iconPulse 1.8s ease-in-out infinite; display:inline-block; }
+  @keyframes orangeGlow {
+    0%,100% { box-shadow:0 0 12px rgba(239,159,39,.2); }
+    50% { box-shadow:0 0 28px rgba(239,159,39,.5), 0 0 60px rgba(239,159,39,.2); }
+  }
+  .almost-glow { animation:orangeGlow 2s ease-in-out infinite; }
 </style>
 </head>
 <body>
@@ -323,6 +355,9 @@
   </div>
 </div>
 <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
 
 <!-- Pause button -->
 <button class="pause-btn" id="pause-btn" onclick="togglePause()" title="Pause test">⏸</button>
@@ -473,6 +508,20 @@
       <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px;">
         <button class="btn" onclick="showReviewMode()">🔍 Review My Test</button>
         <button class="retry-btn" onclick="location.reload()">↩ Retake Test</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROCESSING SCREEN -->
+  <div id="processing-screen" style="display:none;">
+    <div style="min-height:calc(100vh - 59px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;background:radial-gradient(ellipse at 50% 50%,rgba(232,84,26,.08) 0%,transparent 60%),#060d18;">
+      <div id="processing-icon" style="font-size:56px;margin-bottom:24px;">📋</div>
+      <h2 id="processing-title" style="font-size:28px;font-weight:800;color:#fff;margin-bottom:8px;">Processing Your Application</h2>
+      <p id="processing-msg" style="font-size:14px;color:#7a9bbf;max-width:400px;line-height:1.7;margin-bottom:32px;">Please wait while we evaluate your results...</p>
+      <div style="display:flex;gap:8px;align-items:center;justify-content:center;">
+        <div class="proc-dot"></div>
+        <div class="proc-dot" style="animation-delay:.2s"></div>
+        <div class="proc-dot" style="animation-delay:.4s"></div>
       </div>
     </div>
   </div>
@@ -934,7 +983,8 @@ function buildGrammarTest() {
       <div class="section-tag" style="color:${sec.color}">${sec.tag} — ${sec.title}</div>
       <p>${sec.desc}</p>
     </div>`;
-    sec.questions.forEach((q, qi) => {
+    const shuffled = shuffleArray(sec.questions.map((q, qi) => ({ q, qi })));
+    shuffled.forEach(({ q, qi }) => {
       qIdx++;
       grammarTotalQ++;
       html += renderQ(q, `g_${si}_${qi}`, qIdx);
@@ -954,7 +1004,8 @@ function buildReadingTest() {
       <h2>${r.title}</h2><p>${r.meta}</p>
     </div>
     <div class="reading-passage"><h3>${r.title}</h3><div class="reading-meta">${r.meta}</div>${r.text}</div>`;
-    r.questions.forEach((q, qi) => {
+    const shuffledRQ = shuffleArray(r.questions.map((q, qi) => ({ q, qi })));
+    shuffledRQ.forEach(({ q, qi }) => {
       qIdx++;
       readingTotalQ++;
       html += renderQ(q, `r_${ri}_${qi}`, qIdx);
@@ -983,7 +1034,8 @@ function buildListeningTest() {
         <p style="font-size:11px;color:#7a9bbf;margin-top:16px;">🎧 You can watch it more than once before answering.</p>
       </div>
     </div>`;
-    v.questions.forEach((q, qi) => {
+    const shuffledLQ = shuffleArray(v.questions.map((q, qi) => ({ q, qi })));
+    shuffledLQ.forEach(({ q, qi }) => {
       qIdx++;
       listeningTotalQ++;
       html += renderQ(q, `l_${vi}_${qi}`, qIdx);
@@ -1217,8 +1269,91 @@ function submitStage(stage) {
     document.getElementById('listening-test').style.display = 'none';
     document.getElementById('pip2').classList.remove('active');
     document.getElementById('pip2').classList.add('done');
-    showResults();
+    showProcessingScreen();
   }
+}
+
+// ── Processing screen ──────────────────────────────────────────────────────
+function showProcessingScreen() {
+  document.getElementById('processing-screen').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const steps = [
+    { icon:'📋', title:'Processing Your Application', msg:'Reviewing your grammar performance...', delay:0 },
+    { icon:'📖', title:'Analyzing Reading Skills', msg:'Evaluating your comprehension results...', delay:1800 },
+    { icon:'🎧', title:'Checking Listening Score', msg:'Processing your listening responses...', delay:3600 },
+    { icon:'🔍', title:'Calculating Your Level', msg:'Determining your CEFR English level...', delay:5400 },
+    { icon:'⚖️', title:'Making Hiring Decision', msg:'Reviewing your overall performance...', delay:7200 },
+  ];
+
+  steps.forEach(step => {
+    setTimeout(() => {
+      document.getElementById('processing-icon').textContent = step.icon;
+      document.getElementById('processing-title').textContent = step.title;
+      document.getElementById('processing-msg').textContent = step.msg;
+    }, step.delay);
+  });
+
+  setTimeout(() => {
+    document.getElementById('processing-screen').style.display = 'none';
+    showResults();
+  }, 9000);
+}
+
+// ── Confetti ───────────────────────────────────────────────────────────────
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.style.display = 'block';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const pieces = [];
+  const colors = ['#E8541A','#4ecba5','#5fa8d3','#EF9F27','#d47ab0','#ffffff','#5db87a'];
+
+  for (let i = 0; i < 160; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 6 + 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speed: Math.random() * 3 + 2,
+      angle: Math.random() * Math.PI * 2,
+      spin: (Math.random() - 0.5) * 0.2,
+      drift: (Math.random() - 0.5) * 1.5,
+    });
+  }
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = Math.max(0, 1 - frame / 180);
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+      p.y += p.speed;
+      p.x += p.drift;
+      p.angle += p.spin;
+    });
+    frame++;
+    if (frame < 200) requestAnimationFrame(draw);
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); canvas.style.display='none'; }
+  }
+  draw();
+}
+
+// ── Shuffle helper ─────────────────────────────────────────────────────────
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 // ── Results ────────────────────────────────────────────────────────────────
@@ -1291,6 +1426,7 @@ function showResults() {
       <div class="verdict-title" style="color:#4ecba5">Congratulations — You're Hired!</div>
       <div class="verdict-company" style="color:#c0d4e8">You have demonstrated the English level required to work at <b style="color:#4ecba5">${companyName}</b>.</div>
       <div class="verdict-message" style="color:#c0d4e8">Your grammar, reading, and listening scores all meet the minimum requirements. You are ready to move forward in the hiring process. Keep practicing to maintain and improve your level!</div>`;
+    setTimeout(launchConfetti, 400);
   } else {
     // Determine timeline
     const failCount = weakSkills.length;
@@ -1313,8 +1449,9 @@ function showResults() {
     if (verdictType === 'conditional') {
       verdictEl.style.borderColor = '#EF9F27';
       verdictEl.style.background = 'rgba(239,159,39,.06)';
+      verdictEl.classList.add('almost-glow');
       verdictHTML = `
-        <div class="verdict-icon">⚠️</div>
+        <div class="verdict-icon"><span class="verdict-pulse">⚠️</span></div>
         <div class="verdict-title" style="color:#EF9F27">Almost There!</div>
         <div class="verdict-company" style="color:#c0d4e8">To get hired at <b style="color:#EF9F27">${companyName}</b>, you will need to strengthen your <b style="color:#EF9F27">${skillsList}</b>.</div>
         <div class="verdict-message" style="color:#c0d4e8">You are close! Your overall performance shows good potential, but you need a bit more practice in the areas listed above.</div>
@@ -1323,11 +1460,12 @@ function showResults() {
       verdictEl.style.borderColor = '#E8541A';
       verdictEl.style.background = 'rgba(232,84,26,.06)';
       verdictHTML = `
-        <div class="verdict-icon">❌</div>
+        <div class="verdict-icon"><span class="verdict-stamp">❌</span></div>
         <div class="verdict-title" style="color:#E8541A">Not Hired Yet</div>
         <div class="verdict-company" style="color:#c0d4e8">To get hired at <b style="color:#E8541A">${companyName}</b>, you will need to practice your <b style="color:#E8541A">${skillsList}</b>.</div>
         <div class="verdict-message" style="color:#c0d4e8">Do not get discouraged — this is part of the learning process. Focus on the areas below and keep practicing every day.</div>
         <div class="verdict-timeline" style="color:#E8541A">📅 Please come back in <b>${timeStr}</b> to retry.</div>`;
+      setTimeout(() => verdictEl.classList.add('verdict-shake'), 300);
     }
   }
   verdictEl.innerHTML = verdictHTML;
