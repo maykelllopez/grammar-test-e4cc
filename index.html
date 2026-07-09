@@ -348,6 +348,7 @@
     <div class="stage-pip active" id="pip0"></div>
     <div class="stage-pip" id="pip1"></div>
     <div class="stage-pip" id="pip2"></div>
+    <div class="stage-pip" id="pip3"></div>
   </div>
   <div class="timer-wrap" id="timer-wrap">
     <span class="timer-label">Time</span>
@@ -387,10 +388,10 @@
   <div class="cover" id="cover">
     <img src="https://i.imgur.com/9ITpXh0.png" alt="E4CC" onerror="this.style.display='none'"/>
     <h1>English <span>Hiring Test</span></h1>
-    <p>This is your chance to show your English skills! Complete all three stages — Grammar, Reading, and Listening — to get your hiring decision.</p>
+    <p>This is your chance to show your English skills! Complete all four stages — Grammar, Reading, Vocabulary, and Listening — to get your hiring decision.</p>
     <div class="info-row">
-      <div class="info-pill">⏱ Approx. <span>90 min</span></div>
-      <div class="info-pill">📋 <span>3 Stages</span></div>
+      <div class="info-pill">⏱ Approx. <span>100 min</span></div>
+      <div class="info-pill">📋 <span>4 Stages</span></div>
       <div class="info-pill">🎯 Hiring Decision</div>
     </div>
     <div class="form-wrap">
@@ -464,17 +465,38 @@
     </div>
   </div>
 
-  <!-- STAGE 3 COVER -->
-  <div class="stage-cover" id="stage3-cover" style="display:none;background:radial-gradient(ellipse at 70% 30%,rgba(78,203,165,.08) 0%,transparent 60%),#060d18;">
+  <!-- STAGE 3 COVER — VOCABULARY -->
+  <div class="stage-cover" id="stage3-cover" style="display:none;background:radial-gradient(ellipse at 70% 30%,rgba(212,83,126,.08) 0%,transparent 60%),#060d18;">
+    <div class="stage-badge">📚</div>
+    <h2>Stage 3 — <span>Vocabulary</span></h2>
+    <p>Test your knowledge of professional English vocabulary — synonyms, definitions, and paraphrasing. Think carefully before answering!</p>
+    <div class="stage-meta">
+      <div class="info-pill">4 exercise types</div>
+      <div class="info-pill">Approx. <span>15 min</span></div>
+    </div>
+    <button class="btn" onclick="showVocabTest()">Begin Stage 3 →</button>
+  </div>
+
+  <!-- VOCABULARY TEST -->
+  <div id="vocab-test" style="display:none;">
+    <div class="test-area" id="vocab-area"></div>
+    <div style="max-width:800px;margin:0 auto;padding:0 20px 40px;text-align:center;">
+      <p style="color:#7a9bbf;font-size:12px;margin-bottom:14px;">When you finish all vocabulary questions, click below to submit Stage 3.</p>
+      <button class="btn" onclick="submitStage('vocab')">Submit Stage 3 →</button>
+    </div>
+  </div>
+
+  <!-- STAGE 4 COVER — LISTENING -->
+  <div class="stage-cover" id="stage4-cover" style="display:none;background:radial-gradient(ellipse at 70% 30%,rgba(78,203,165,.08) 0%,transparent 60%),#060d18;">
     <div class="stage-badge">🎧</div>
-    <h2>Stage 3 — <span>Listening</span></h2>
+    <h2>Stage 4 — <span>Listening</span></h2>
     <p>Watch two short videos and answer comprehension questions. You may watch each video more than once.</p>
     <div class="stage-meta">
       <div class="info-pill">2 videos</div>
       <div class="info-pill">14 questions</div>
-      <div class="info-pill">Approx. <span>20 min</span></div>
+      <div class="info-pill">Approx. <span>15 min</span></div>
     </div>
-    <button class="btn" onclick="showListeningTest()">Begin Stage 3 →</button>
+    <button class="btn" onclick="showListeningTest()">Begin Stage 4 →</button>
   </div>
 
   <!-- LISTENING TEST -->
@@ -557,7 +579,7 @@
 
 <script>
 // ── Timer ──────────────────────────────────────────────────────────────────
-const stageDurations = { grammar: 40 * 60, reading: 25 * 60, listening: 15 * 60 };
+const stageDurations = { grammar: 40 * 60, reading: 25 * 60, vocab: 15 * 60, listening: 15 * 60 };
 let timerInterval = null;
 let timerSeconds = 0;
 let currentTimerStage = null;
@@ -640,8 +662,9 @@ function triggerTimeUp(stage) {
   timeUpPending = stage;
   const messages = {
     grammar: "Your time for Stage 1 (Grammar) has ended. Your answers have been saved and you will now move to Stage 2 — Reading.",
-    reading: "Your time for Stage 2 (Reading) has ended. Your answers have been saved and you will now move to Stage 3 — Listening.",
-    listening: "Your time for Stage 3 (Listening) has ended. Your answers have been saved. You will now see your final hiring decision."
+    reading: "Your time for Stage 2 (Reading) has ended. Your answers have been saved and you will now move to Stage 3 — Vocabulary.",
+    vocab: "Your time for Stage 3 (Vocabulary) has ended. Your answers have been saved and you will now move to Stage 4 — Listening.",
+    listening: "Your time for Stage 4 (Listening) has ended. Your answers have been saved. You will now see your final hiring decision."
   };
   document.getElementById('timeup-msg').textContent = messages[stage];
   document.getElementById('timeup-overlay').classList.add('visible');
@@ -664,9 +687,10 @@ let multiAnswers = {};
 let grammarTotalQ = 0;
 let readingTotalQ = 0;
 let listeningTotalQ = 0;
-let stageScores = { grammar: 0, reading: 0, listening: 0 };
-let stageTotals = { grammar: 0, reading: 0, listening: 0 };
-let allErrors = { grammar: [], reading: [], listening: [] };
+let stageScores = { grammar: 0, reading: 0, vocab: 0, listening: 0 };
+let stageTotals = { grammar: 0, reading: 0, vocab: 0, listening: 0 };
+let allErrors = { grammar: [], reading: [], vocab: [], listening: [] };
+let vocabTotalQ = 0;
 
 // ── Tab navigation ─────────────────────────────────────────────────────────
 function showTab(id, btn) {
@@ -721,7 +745,7 @@ function showReadingTest() {
 }
 
 function showListeningTest() {
-  document.getElementById('stage3-cover').style.display = 'none';
+  document.getElementById('stage4-cover').style.display = 'none';
   document.getElementById('listening-test').style.display = 'block';
   buildListeningTest();
   startTimer('listening');
@@ -766,6 +790,76 @@ function buildRefresh() {
 }
 buildRefresh();
 function toggleRefresh(i) { document.getElementById(`rc_${i}`).classList.toggle('open'); }
+
+// ── Vocabulary questions ───────────────────────────────────────────────────
+const vocabQuestions = [
+  { type:"mc", text:"Choose the best synonym for the word <b>improve</b>.", options:["enhance","destroy","forget","avoid"], answer:0, vocabType:"synonym" },
+  { type:"mc", text:"Choose the best synonym for <b>help</b>.", options:["confuse","assist","ignore","delay"], answer:1, vocabType:"synonym" },
+  { type:"mc", text:"Choose the best synonym for <b>need</b>.", options:["refuse","enjoy","require","prevent"], answer:2, vocabType:"synonym" },
+  { type:"mc", text:"Choose the best synonym for <b>use</b>.", options:["lose","utilize","break","avoid"], answer:1, vocabType:"synonym" },
+  { type:"mc", text:"Choose the best synonym for <b>show</b>.", options:["hide","demonstrate","forget","repeat"], answer:1, vocabType:"synonym" },
+  { type:"mc", text:"Choose the best synonym for <b>end</b>.", options:["begin","expand","conclude","repeat"], answer:2, vocabType:"synonym" },
+  { type:"mc", text:"Choose the best synonym for <b>start</b>.", options:["initiate","cancel","refuse","avoid"], answer:0, vocabType:"synonym" },
+  { type:"mc", text:"Choose the best synonym for <b>handle</b>.", options:["drop","ignore","manage","question"], answer:2, vocabType:"synonym" },
+
+  { type:"mc", text:"Which word means <i>'to work together with others to achieve a goal'</i>?", options:["compete","collaborate","replace","separate"], answer:1, vocabType:"definition" },
+  { type:"mc", text:"Which word means <i>'to make certain that something happens'</i>?", options:["forget","cancel","ensure","delay"], answer:2, vocabType:"definition" },
+  { type:"mc", text:"Which word means <i>'to formally ask for something'</i>?", options:["refuse","request","ignore","assume"], answer:1, vocabType:"definition" },
+  { type:"mc", text:"Which word means <i>'to think carefully about something before deciding'</i>?", options:["consider","forget","rush","avoid"], answer:0, vocabType:"definition" },
+  { type:"mc", text:"Which word means <i>'to give someone information about something'</i>?", options:["confuse","ignore","inform","question"], answer:2, vocabType:"definition" },
+  { type:"mc", text:"Which word means <i>'to look at something carefully to check it'</i>?", options:["hide","review","skip","repeat"], answer:1, vocabType:"definition" },
+
+  { type:"mc", text:"Instead of 'I will help you', say: 'I will _____ you.'", options:["assist","confuse","avoid","question"], answer:0, vocabType:"fitb" },
+  { type:"mc", text:"Instead of 'We need to talk to the client', say: 'We need to _____ with the client.'", options:["compete","communicate","disagree","ignore"], answer:1, vocabType:"fitb" },
+  { type:"mc", text:"Instead of 'Please make sure the report is ready', say: 'Please _____ the report is ready.'", options:["forget","delay","ensure","cancel"], answer:2, vocabType:"fitb" },
+  { type:"mc", text:"Instead of 'I will check the document', say: 'I will _____ the document.'", options:["lose","review","skip","break"], answer:1, vocabType:"fitb" },
+  { type:"mc", text:"Instead of 'She will give us the information', say: 'She will _____ us with the information.'", options:["provide","remove","hide","demand"], answer:0, vocabType:"fitb" },
+  { type:"mc", text:"Instead of 'We need to deal with this issue', say: 'We need to _____ this issue.'", options:["ignore","address","repeat","avoid"], answer:1, vocabType:"fitb" },
+
+  { type:"mc", text:"Which sentence has a similar meaning to: <i>\"You need to improve your communication skills.\"</i>", options:["You should enhance your ability to communicate with others.","You must stop talking to your coworkers immediately.","Communication skills are not important in this job.","You have already developed all the skills you need."], answer:0, vocabType:"paraphrase" },
+  { type:"mc", text:"Which sentence has a similar meaning to: <i>\"She always takes care of her clients.\"</i>", options:["She never talks to her clients at work.","She always looks after her clients and their needs.","She ignores her clients most of the time.","She prefers to work alone without any clients."], answer:1, vocabType:"paraphrase" },
+  { type:"mc", text:"Which sentence has a similar meaning to: <i>\"We need to find out what the customer wants.\"</i>", options:["We should avoid asking the customer any questions.","We must ignore what the customer is requesting.","We need to discover what the customer is looking for.","We already know exactly what the customer needs."], answer:2, vocabType:"paraphrase" },
+  { type:"mc", text:"Which sentence has a similar meaning to: <i>\"The manager told the team about the new policy.\"</i>", options:["The manager informed the team about the new policy.","The manager refused to share any information with the team.","The team decided to create a new policy on their own.","The manager asked the team to forget the new policy."], answer:0, vocabType:"paraphrase" },
+  { type:"mc", text:"Which sentence has a similar meaning to: <i>\"They worked together to finish the project.\"</i>", options:["They competed against each other to complete the project.","They refused to help each other with the project.","They collaborated to successfully complete the project.","They decided to cancel the project at the last minute."], answer:2, vocabType:"paraphrase" },
+];
+
+function showVocabTest() {
+  document.getElementById('stage3-cover').style.display = 'none';
+  document.getElementById('vocab-test').style.display = 'block';
+  buildVocabTest();
+  startTimer('vocab');
+  showPauseButton();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function buildVocabTest() {
+  const area = document.getElementById('vocab-area');
+  let html = '';
+  let qIdx = 0;
+  const parts = [
+    { label:'Part 1 — Synonym Match', desc:'Choose the word that means the same as the highlighted word.', color:'#d47ab0', types:['synonym'] },
+    { label:'Part 2 — Word & Definition', desc:'Choose the word that matches the definition given.', color:'#EF9F27', types:['definition'] },
+    { label:'Part 3 — Complete the Sentence', desc:'Choose the option that best completes each sentence using professional vocabulary.', color:'#5fa8d3', types:['fitb'] },
+    { label:'Part 4 — Paraphrase Recognition', desc:'Choose the sentence that has a similar meaning to the example.', color:'#4ecba5', types:['paraphrase'] },
+  ];
+  parts.forEach(part => {
+    html += `<div class="section-header" style="border-left-color:${part.color}">
+      <div class="section-tag" style="color:${part.color}">Vocabulary</div>
+      <h2>${part.label}</h2>
+      <p>${part.desc}</p>
+    </div>`;
+    const shuffled = shuffleArray(
+      vocabQuestions.map((q, qi) => ({ q, qi })).filter(({ q }) => part.types.includes(q.vocabType))
+    );
+    shuffled.forEach(({ q, qi }) => {
+      qIdx++;
+      vocabTotalQ++;
+      html += renderQ(q, `v_${qi}`, qIdx);
+    });
+  });
+  area.innerHTML = html;
+  updateProgress('vocab');
+}
 
 // ── Grammar questions ──────────────────────────────────────────────────────
 const grammarSections = [
@@ -1251,6 +1345,29 @@ function submitStage(stage) {
     document.getElementById('pip2').classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+  } else if (stage === 'vocab') {
+    let sc = 0;
+    vocabQuestions.forEach((q, qi) => {
+      const id = `v_${qi}`;
+      const correct = scoreQ(q, id);
+      if (correct) sc++;
+      else {
+        const disp = getAnswerDisplay(q, id);
+        allErrors.vocab.push({ q, id, disp, section: 'Vocabulary', color: '#d47ab0' });
+      }
+    });
+    stageScores.vocab = sc;
+    stageTotals.vocab = vocabTotalQ;
+    document.getElementById('vocab-test').style.display = 'none';
+    document.getElementById('stage4-cover').style.display = 'flex';
+    document.getElementById('stage4-cover').style.flexDirection = 'column';
+    document.getElementById('stage4-cover').style.alignItems = 'center';
+    document.getElementById('stage4-cover').style.justifyContent = 'center';
+    document.getElementById('pip2').classList.remove('active');
+    document.getElementById('pip2').classList.add('done');
+    document.getElementById('pip3').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
   } else if (stage === 'listening') {
     let sc = 0;
     listeningVideos.forEach((v, vi) => {
@@ -1267,8 +1384,8 @@ function submitStage(stage) {
     stageScores.listening = sc;
     stageTotals.listening = listeningTotalQ;
     document.getElementById('listening-test').style.display = 'none';
-    document.getElementById('pip2').classList.remove('active');
-    document.getElementById('pip2').classList.add('done');
+    document.getElementById('pip3').classList.remove('active');
+    document.getElementById('pip3').classList.add('done');
     showProcessingScreen();
   }
 }
@@ -1280,10 +1397,11 @@ function showProcessingScreen() {
 
   const steps = [
     { icon:'📋', title:'Processing Your Application', msg:'Reviewing your grammar performance...', delay:0 },
-    { icon:'📖', title:'Analyzing Reading Skills', msg:'Evaluating your comprehension results...', delay:1800 },
-    { icon:'🎧', title:'Checking Listening Score', msg:'Processing your listening responses...', delay:3600 },
-    { icon:'🔍', title:'Calculating Your Level', msg:'Determining your CEFR English level...', delay:5400 },
-    { icon:'⚖️', title:'Making Hiring Decision', msg:'Reviewing your overall performance...', delay:7200 },
+    { icon:'📖', title:'Analyzing Reading Skills', msg:'Evaluating your comprehension results...', delay:1600 },
+    { icon:'📚', title:'Checking Vocabulary Score', msg:'Reviewing your vocabulary responses...', delay:3200 },
+    { icon:'🎧', title:'Checking Listening Score', msg:'Processing your listening responses...', delay:4800 },
+    { icon:'🔍', title:'Calculating Your Level', msg:'Determining your CEFR English level...', delay:6400 },
+    { icon:'⚖️', title:'Making Hiring Decision', msg:'Reviewing your overall performance...', delay:7800 },
   ];
 
   steps.forEach(step => {
@@ -1297,7 +1415,7 @@ function showProcessingScreen() {
   setTimeout(() => {
     document.getElementById('processing-screen').style.display = 'none';
     showResults();
-  }, 9000);
+  }, 9500);
 }
 
 // ── Confetti ───────────────────────────────────────────────────────────────
@@ -1375,6 +1493,7 @@ function showResults() {
 
   const gPct = Math.round((stageScores.grammar / stageTotals.grammar) * 100);
   const rPct = Math.round((stageScores.reading / stageTotals.reading) * 100);
+  const vPct = Math.round((stageScores.vocab / stageTotals.vocab) * 100);
   const lPct = Math.round((stageScores.listening / stageTotals.listening) * 100);
 
   // Scores grid
@@ -1385,8 +1504,10 @@ function showResults() {
   }
   const gStatus = statusBadge(gPct, 60);
   const rStatus = statusBadge(rPct, 65);
+  const vStatus = statusBadge(vPct, 65);
   const lStatus = statusBadge(lPct, 65);
 
+  document.getElementById('scores-grid').style.gridTemplateColumns = '1fr 1fr 1fr 1fr';
   document.getElementById('scores-grid').innerHTML = `
     <div class="score-card">
       <div class="score-label">Grammar</div>
@@ -1399,25 +1520,32 @@ function showResults() {
       <div class="score-status" style="background:${rStatus.bg};color:${rStatus.color}">${rStatus.label}</div>
     </div>
     <div class="score-card">
+      <div class="score-label">Vocabulary</div>
+      <div class="score-num" style="color:${vStatus.color}">${vPct}%</div>
+      <div class="score-status" style="background:${vStatus.bg};color:${vStatus.color}">${vStatus.label}</div>
+    </div>
+    <div class="score-card">
       <div class="score-label">Listening</div>
       <div class="score-num" style="color:${lStatus.color}">${lPct}%</div>
       <div class="score-status" style="background:${lStatus.bg};color:${lStatus.color}">${lStatus.label}</div>
     </div>`;
 
   // Hiring decision
-  const overallPct = Math.round((gPct + rPct + lPct) / 3);
+  const overallPct = Math.round((gPct + rPct + vPct + lPct) / 4);
   const gHired = gPct >= 60;
   const rHired = rPct >= 65;
+  const vHired = vPct >= 65;
   const lHired = lPct >= 65;
   const weakSkills = [];
   if (!gHired) weakSkills.push('Grammar');
   if (!rHired) weakSkills.push('Reading');
+  if (!vHired) weakSkills.push('Vocabulary');
   if (!lHired) weakSkills.push('Listening');
 
   let verdictHTML = '';
   const verdictEl = document.getElementById('hiring-verdict');
 
-  if (gHired && rHired && lHired) {
+  if (gHired && rHired && vHired && lHired) {
     // HIRED
     verdictEl.style.borderColor = '#4ecba5';
     verdictEl.style.background = 'rgba(78,203,165,.06)';
@@ -1484,6 +1612,13 @@ function showResults() {
     const p = Math.round((sc/r.questions.length)*100);
     bdHtml += `<div class="bd-row"><div class="bd-label">Reading ${ri+1}</div><div class="bd-bar-wrap"><div class="bd-bar" style="width:${p}%;background:${r.color}"></div></div><div class="bd-score">${sc}/${r.questions.length}</div></div>`;
   });
+
+  // Vocab breakdown
+  let vSc = 0;
+  vocabQuestions.forEach((q, qi) => { if (scoreQ(q, `v_${qi}`)) vSc++; });
+  const vP = Math.round((vSc/vocabQuestions.length)*100);
+  bdHtml += `<div class="bd-row"><div class="bd-label">Vocabulary</div><div class="bd-bar-wrap"><div class="bd-bar" style="width:${vP}%;background:#d47ab0"></div></div><div class="bd-score">${vSc}/${vocabQuestions.length}</div></div>`;
+
   listeningVideos.forEach((v, vi) => {
     let sc = 0;
     v.questions.forEach((q, qi) => { if (scoreQ(q, `l_${vi}_${qi}`)) sc++; });
@@ -1511,6 +1646,7 @@ function showResults() {
       });
     }
     if (!rHired) weakHtml += `<div class="weak-item"><div class="weak-icon">📌</div><div class="weak-text"><b>Reading</b> — Practice reading English articles every day. Focus on understanding the main idea and new vocabulary.</div></div>`;
+    if (!vHired) weakHtml += `<div class="weak-item"><div class="weak-icon">📌</div><div class="weak-text"><b>Vocabulary</b> — Practice professional synonyms daily. Try replacing simple words like "help", "show", and "need" with more sophisticated alternatives in your daily conversations.</div></div>`;
     if (!lHired) weakHtml += `<div class="weak-item"><div class="weak-icon">📌</div><div class="weak-text"><b>Listening</b> — Watch English content daily — series, podcasts, YouTube videos. Start with subtitles and gradually reduce them.</div></div>`;
   }
   document.getElementById('weak-areas').innerHTML = weakHtml;
@@ -1571,6 +1707,16 @@ function showReviewMode() {
       qIdx++;
       html += renderReviewQ(q, `r_${ri}_${qi}`, qIdx);
     });
+  });
+
+  // Vocab section
+  html += `<div class="review-section-header" style="border-left-color:#d47ab0">
+    <div class="review-section-tag" style="color:#d47ab0">Stage 3</div>
+    <div class="review-section-title">Vocabulary</div>
+  </div>`;
+  vocabQuestions.forEach((q, qi) => {
+    qIdx++;
+    html += renderReviewQ(q, `v_${qi}`, qIdx);
   });
 
   // Listening sections
